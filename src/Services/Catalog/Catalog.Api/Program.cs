@@ -1,3 +1,6 @@
+using Catalog.Api.Data;
+using Catalog.Api.Repositories;
+
 namespace Catalog.Api
 {
     public class Program
@@ -6,13 +9,17 @@ namespace Catalog.Api
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            builder.Services.AddScoped<ICatalogContext, CatalogContext>();
+            builder.Services.AddScoped<IProductRepository, ProductRepository>();
+
             // Add services to the container.
             builder.Services.AddAuthorization();
+            builder.Services.AddControllers();
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-
+  
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -23,26 +30,7 @@ namespace Catalog.Api
             }
 
             app.UseAuthorization();
-
-            var summaries = new[]
-            {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
-
-            app.MapGet("/weatherforecast", (HttpContext httpContext) =>
-            {
-                var forecast = Enumerable.Range(1, 5).Select(index =>
-                    new WeatherForecast
-                    {
-                        Date = DateTime.Now.AddDays(index),
-                        TemperatureC = Random.Shared.Next(-20, 55),
-                        Summary = summaries[Random.Shared.Next(summaries.Length)]
-                    })
-                    .ToArray();
-                return forecast;
-            })
-            .WithName("GetWeatherForecast");
-
+            app.MapControllers();
             app.Run();
         }
     }
